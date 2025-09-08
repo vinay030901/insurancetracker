@@ -116,7 +116,7 @@ public class WebhookService {
                     .processedAt(Instant.now())
                     .build();
             processedRequestRepository.save(pr);
-
+            policyRedisService.setPolicy(saved.getPolicyId(), saved);
             return VerifyResult.success(saved);
 
         } catch (InvalidSignatureException | TimeStampException ex) {

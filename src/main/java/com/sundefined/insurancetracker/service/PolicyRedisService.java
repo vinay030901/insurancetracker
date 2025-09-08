@@ -1,5 +1,7 @@
 package com.sundefined.insurancetracker.service;
 
+import com.sundefined.insurancetracker.model.PolicyEvent;
+import com.sundefined.insurancetracker.repository.PolicyEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,12 @@ public class PolicyRedisService {
 
     private Duration getTtl() {
         return Duration.ofHours(ttlHours);
+    }
+    public void setPolicy(String policyId,PolicyEvent policyEvent){
+        redisTemplate.opsForValue().set(policyId, policyEvent, getTtl());
+    }
+    public PolicyEvent getPolicy(String policyId){
+        return (PolicyEvent) redisTemplate.opsForValue().get(policyId);
     }
 
     public void saveCurrentStage(String policyId, String stage) {
