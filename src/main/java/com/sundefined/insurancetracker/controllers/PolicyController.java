@@ -13,7 +13,7 @@ public class PolicyController {
 
     private final PolicyRedisService policyRedisService;
 
-    @GetMapping("/{policyId}/stage")
+    @GetMapping("/{policyId}")
     public ResponseEntity<PolicyEvent> getPolicy(@PathVariable String policyId) {
         PolicyEvent policyEvent = policyRedisService.getPolicy(policyId);
         return ResponseEntity.ok(policyEvent);
