@@ -20,7 +20,9 @@ public class WebhookSubscriberInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("Initializing webhook subscribers...");
 
+
         // HEALTH insurance subscribers
+        saveIfNotExists("HEALTH", "underwriting", "http://localhost:8085/underwriting/callback");
         saveIfNotExists("HEALTH", "medical_checkup", "http://localhost:8085/medical/callback");
         saveIfNotExists("HEALTH", "approval", "http://localhost:8085/health-verification/callback");
 
