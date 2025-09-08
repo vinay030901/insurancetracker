@@ -1,0 +1,162 @@
+{
+	"info": {
+		"_postman_id": "dc68d928-466e-4a80-8b06-3039497d90e8",
+		"name": "Insurance-tracker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21938536"
+	},
+	"item": [
+		{
+			"name": "health-check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/health",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "receiveEvent",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/webhook/events/P-1001",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"webhook",
+						"events",
+						"P-1001"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send event",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Use the exact raw body after resolving any variables (if you use them)\r",
+							"const rawBody = pm.variables.replaceIn(pm.request.body.raw);\r",
+							"\r",
+							"// Required headers: a unique Request-Id and a current UTC Timestamp\r",
+							"// const reqId = pm.variables.replaceIn('{{$uuid}}');\r",
+							"const ts = new Date().toISOString(); // e.g., 2025-09-08T00:55:00.000Z\r",
+							"\r",
+							"// Compute HMAC-SHA256 over the raw body using your shared secret\r",
+							"const secret = pm.environment.get('WEBHOOK_SECRET') || '';\r",
+							"const hmac = CryptoJS.HmacSHA256(rawBody, secret);\r",
+							"const hex = CryptoJS.enc.Hex.stringify(hmac);\r",
+							"const signature = `sha256=${hex}`;\r",
+							"\r",
+							"// Set headers\r",
+							"pm.request.headers.upsert({ key: 'Content-Type', value: 'text/plain' }); // raw text\r",
+							"// pm.request.headers.upsert({ key: 'X-Request-Id', value: reqId });\r",
+							"pm.request.headers.upsert({ key: 'X-Timestamp', value: ts });\r",
+							"pm.request.headers.upsert({ key: 'X-Signature', value: signature });\r",
+							"\r",
+							"// Optional console logs (View -> Show Postman Console)\r",
+							"console.log('Body:', rawBody);\r",
+							"// console.log('X-Request-Id:', reqId);\r",
+							"console.log('X-Timestamp:', ts);\r",
+							"console.log('X-Signature:', signature);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Request-Id",
+						"value": "req-1011"
+					},
+					{
+						"key": "X-Signature",
+						"value": "sha256="
+					},
+					{
+						"key": "X-Timestamp",
+						"value": " 2025-09-08T03:38:00Z"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"policyId\": \"P-122\",\r\n  \"insuranceType\": \"LIFE\",\r\n  \"stage\": \"application_submitted\",\r\n  \"description\": \"life insurance is submitted\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/webhook/event",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"webhook",
+						"event"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST http://localhost:8080/api/webhook/event \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -H \"X-Request-Id: req-001\" \\\r\n  -H \"X-Signature: sha256=$SIGNATURE\" \\\r\n  -H \"X-Timestamp: $(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\" \\\r\n  -d '{\"policyId\":\"P123\",\"status\":\"APPLICATION_SUBMITTED\",\"description\":\"User submitted application\"}'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "get subscription",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/subscriptions/get/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"subscriptions",
+						"get",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get current stage",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
