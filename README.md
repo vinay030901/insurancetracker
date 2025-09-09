@@ -1,3 +1,121 @@
+1. Business/Technical Context
+Insurance processes often involve multiple steps like submitting applications, document verification, medical checks, and approvals. These steps are usually managed manually or across scattered systems, which makes it hard for users to track progress and for teams to collaborate efficiently.
+
+2. Problem Statement
+Customers do not have an easy way to know the current status of their insurance policy. At the same time, internal teams struggle to record and track updates in a structured manner. This causes delays, confusion, and poor customer experience.
+
+
+We built a real-time policy tracking system.
+
+Customers can log in and see live progress of their insurance journey.
+
+Internal teams can submit updates instantly through secure APIs.
+
+The system is scalable and can handle thousands of policies in parallel.
+
+Webhooks
+
+Act like a doorbell notification from different insurance teams.
+
+The moment a team finishes a step (medical test, verification, etc.), the system gets notified instantly.
+
+Removes waiting time and manual reporting.
+
+Kafka
+
+Handles heavy traffic smoothly.
+
+Makes sure updates are processed in correct order.
+
+Prevents system crashes when thousands of updates come in together.
+
+Redis
+
+Works as a fast memory cache.
+
+Frequently accessed policy data is served in milliseconds instead of hitting the database every time.
+
+Improves app speed drastically.
+
+Security (Signature + Timestamp)
+
+Every incoming event carries a digital signature and timestamp.
+
+Prevents fake updates and replay attacks.
+
+Ensures that only trusted teams can push events.
+
+4. Customer Benefit
+
+Transparency: Customers always know the exact stage of their policy.
+
+Speed: Updates appear instantly after a team finishes its task.
+
+Trust: Customers are confident the process is secure and tamper-proof.
+
+Scalability: System can grow with the business without slowing down.
+
+Policy Tracking: Before vs After Our Solution
+Aspect	Before (Traditional Way)	After (Our Solution) 🚀
+Update Flow	Manual updates via calls/emails	Automatic updates via Webhooks
+Customer View	Customer has to call support to ask status	Customer logs in → sees live progress bar
+Internal Teams	Teams send reports manually, often delayed	Teams push updates instantly via secure API
+Data Speed	Database hit every time → slow responses	Redis caching → milliseconds response
+Scalability	Breaks under high load (thousands of policies)	Kafka ensures smooth high-volume handling
+Security	Vulnerable to fake or tampered updates	Signature + Timestamp → verified events
+Transparency	Customers in the dark, no clear visibility	Real-time, stage-by-stage transparency
+
+Non-Quantifiable Benefits of the Proposed Solution
+
+Tentative Efforts Saved
+
+Drastic reduction in back-and-forth emails/calls between customer and support.
+
+Teams no longer need to manually push updates — saving hours of coordination.
+
+Quality Improvement
+
+Status updates are now consistent and error-free (no human mistakes in entering stages).
+
+Real-time updates improve trust and customer satisfaction.
+
+Manual Touchpoints Removed
+
+Support team doesn’t need to act as middlemen → direct visibility for customers.
+
+Internal handovers happen automatically (next stage team notified instantly).
+
+Transparency & Accountability
+
+Every step is timestamped and traceable, improving auditability.
+
+Customers get clear stage-wise progress, reducing disputes.
+
+Scalability of Operations
+
+The system can handle thousands of policies in parallel without adding manpower.
+
+Employee Productivity
+
+Teams focus on actual decision-making (like risk assessment, approvals) instead of clerical updates.
+
+
+Innovative / Out-of-the-Box Ideas
+
+Webhooks – Real-time updates, no manual follow-ups.
+
+Kafka – Scalable event distribution to multiple systems.
+
+Redis – Instant tracking, faster than DB queries.
+
+Security – HMAC signatures + timestamp checks.
+
+Canonical Stage Registry – Standardized stages per insurance type.
+
+eKart-style Tracking – Simple, transparent customer experience.
+
+
+
 🛡 Insurance Tracker – Workflow Automation with Kafka, Redis & Postgres
 
 > Hackathon Project – Automating insurance claim workflows with real-time event tracking, team notifications, and resilient processing pipeline.
