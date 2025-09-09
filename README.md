@@ -1,3 +1,14 @@
+1. Business/Technical Context
+Insurance processes often involve multiple steps like submitting applications, document verification, medical checks, and approvals. These steps are usually managed manually or across scattered systems, which makes it hard for users to track progress and for teams to collaborate efficiently.
+
+2. Problem Statement
+Customers do not have an easy way to know the current status of their insurance policy. At the same time, internal teams struggle to record and track updates in a structured manner. This causes delays, confusion, and poor customer experience.
+
+
+
+
+
+
 🛡 Insurance Tracker – Workflow Automation with Kafka, Redis & Postgres
 
 > Hackathon Project – Automating insurance claim workflows with real-time event tracking, team notifications, and resilient processing pipeline.
