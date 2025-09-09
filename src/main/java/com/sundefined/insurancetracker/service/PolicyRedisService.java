@@ -1,7 +1,9 @@
 package com.sundefined.insurancetracker.service;
 
+import com.sundefined.insurancetracker.model.Policy;
 import com.sundefined.insurancetracker.model.PolicyEvent;
-import com.sundefined.insurancetracker.repository.PolicyEventRepository;
+import com.sundefined.insurancetracker.model.User;
+import com.sundefined.insurancetracker.model.UserRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,41 +19,23 @@ public class PolicyRedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${app.cache.ttl-hours:24}")
-    private long ttlHours;
-
-    private Duration getTtl() {
-        return Duration.ofHours(ttlHours);
+    public Policy getPolicy(String policyId){
+        return (Policy) redisTemplate.opsForValue().get(policyId);
     }
-    public void setPolicy(String policyId,PolicyEvent policyEvent){
-        redisTemplate.opsForValue().set(policyId, policyEvent, getTtl());
+    public void setPolicy(String policyId, Policy policy){
+        redisTemplate.opsForValue().set(policyId, policy);
     }
-    public PolicyEvent getPolicy(String policyId){
+    public void setPolicyEvent(String policyId,PolicyEvent policyEvent){
+        redisTemplate.opsForValue().set(policyId, policyEvent);
+    }
+    public PolicyEvent getPolicyEvent(String policyId){
         return (PolicyEvent) redisTemplate.opsForValue().get(policyId);
     }
-
-    public void saveCurrentStage(String policyId, String stage) {
-        String key = "policy:" + policyId + ":currentStage";
-        redisTemplate.opsForValue().set(key, stage, getTtl());
-        log.info("Saved current stage [{}] for policy [{}] with TTL {}h", stage, policyId, ttlHours);
+    public User getUser(UserRequestDto userRequestDto){
+        return (User) redisTemplate.opsForValue().get(userRequestDto.getUserId());
     }
-
-    public String getCurrentStage(String policyId) {
-        String stage = (String) redisTemplate.opsForValue().get("policy:" + policyId + ":currentStage");
-        log.info("Fetched current stage [{}] for policy [{}]", stage, policyId);
-        return stage;
-    }
-
-    public void saveCompletedStatus(String policyId, boolean completed) {
-        String key = "policy:" + policyId + ":completed";
-        redisTemplate.opsForValue().set(key, completed, getTtl());
-        log.info("Saved completed status [{}] for policy [{}] with TTL {}h", completed, policyId, ttlHours);
-    }
-
-    public Boolean isCompleted(String policyId) {
-        Boolean completed = (Boolean) redisTemplate.opsForValue().get("policy:" + policyId + ":completed");
-        log.info("Fetched completed status [{}] for policy [{}]", completed, policyId);
-        return completed;
+    public void setUser(User user){
+        redisTemplate.opsForValue().set(user.getUserId(), user);
     }
 
     public void deletePolicyCache(String policyId) {

@@ -16,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/api/webhook")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:5173")
 public class WebhookController {
 
     private final WebhookService service;
@@ -44,6 +45,7 @@ public class WebhookController {
                 log.info("[WebhookController] Duplicate request detected reqId={}", reqId);
                 return ResponseEntity.ok(Map.of("status", "duplicate", "reqId", reqId));
             } else {
+
                 PolicyEvent saved = result.getSavedEvent();
                 log.info("[WebhookController] Event processed successfully reqId={} policyId={} stage={} completed={}",
                         reqId, saved.getPolicyId(), saved.getStage(), saved.isCompleted());

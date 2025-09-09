@@ -18,20 +18,20 @@ public class PolicyEvent {
 
     private String policyId;
 
-    private String insuranceType;   // HEALTH, CAR, LIFE
+    private String insuranceType; // HEALTH, CAR, LIFE
 
-    private String stage;           // application_submitted, background_check, etc.
+    private String stage; // application_submitted, background_check, etc.
 
     private String description;
 
-    @Builder.Default
-    private Instant createdAt = Instant.now();
+    // @Builder.Default
+    // private Instant createdAt = Instant.now();
 
     // NEW FIELDS
-    private String sourceSystem;    // e.g. "background-check-team", "risk-assessment-team"
-    private String externalEvent;   // raw webhook event like "background_check_submitted"
+    private String sourceSystemId; // e.g. "background-check-team", "risk-assessment-team"
+    private String externalEvent; // password of that user or team
 
     @Builder.Default
     private boolean completed = false; // whether this policy has reached "completed" stage
-}
 
+}

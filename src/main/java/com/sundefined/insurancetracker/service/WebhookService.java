@@ -33,6 +33,8 @@ public class WebhookService {
     private final PolicyRedisService policyRedisService;
     private final EventDispatcher dispatcher;
     private final NotificationService notificationService;
+    private final UserService userService;
+    private final PolicyService policyService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -41,8 +43,11 @@ public class WebhookService {
 
     private static final Duration ALLOWED_SKEW = Duration.ofMinutes(5);
 
-    public static class InvalidSignatureException extends RuntimeException {}
-    public static class TimeStampException extends RuntimeException {}
+    public static class InvalidSignatureException extends RuntimeException {
+    }
+
+    public static class TimeStampException extends RuntimeException {
+    }
 
     @Transactional
     public VerifyResult verifyAndSave(String reqId, String signatureHeader, String timestampHeader, String body) {
@@ -59,14 +64,9 @@ public class WebhookService {
                 Instant t = Instant.parse(timestampHeader);
                 Duration diff = Duration.between(t, Instant.now()).abs();
                 if (diff.compareTo(ALLOWED_SKEW) > 0) {
-                    log.warn("[WebhookService] Timestamp skew exceeded for reqId={}, skew={} minutes",
-                            reqId, diff.toMinutes());
                     throw new TimeStampException();
                 }
-            } catch (TimeStampException e) {
-                throw e;
             } catch (Exception e) {
-                log.error("[WebhookService] Failed to parse timestamp header={} reqId={}", timestampHeader, reqId);
                 throw new TimeStampException();
             }
         }
@@ -79,48 +79,30 @@ public class WebhookService {
                 event.setPolicyId("P-" + UUID.randomUUID());
             }
 
-            log.info("[WebhookService] Processing event reqId={} policyId={} stage={} externalEvent={} sourceSystem={}",
-                    reqId, event.getPolicyId(), event.getStage(), event.getExternalEvent(), event.getSourceSystem());
-
             // 4️⃣ Determine next stage
-            Optional<String> nextStage = StageRegistry.nextStage(
-                    event.getInsuranceType(),
-                    event.getStage()
-            );
-
-            // 5️⃣ Mark as completed if no next stage
+            Optional<String> nextStage = StageRegistry.nextStage(event.getInsuranceType(), event.getStage());
             event.setCompleted(nextStage.isEmpty());
+
+            // 5️⃣ update policy
+            policyService.savePolicy(event);
 
             // 6️⃣ Save event
             PolicyEvent saved = repository.save(event);
-            log.info("[WebhookService] Saved event id={} policyId={} stage={} completed={}",
-                    saved.getId(), saved.getPolicyId(), saved.getStage(), saved.isCompleted());
 
-            // 7️⃣ Notify next stage team if exists
-            nextStage.ifPresent(stage -> {
-                log.info("[WebhookService] Next stage resolved={} for policyId={}", stage, saved.getPolicyId());
-                notificationService.notifyTeamForStage(saved, stage);
-            });
-
-            // 8️⃣ Dispatch internally (Kafka/logging/etc.)
+            // 7️⃣ Notify team & dispatch
+            nextStage.ifPresent(stage -> notificationService.notifyTeamForStage(saved, stage));
             dispatcher.dispatch(saved);
 
-            // adding to redis
-            policyRedisService.saveCurrentStage(saved.getPolicyId(), event.getStage());
-            policyRedisService.saveCompletedStatus(saved.getPolicyId(), event.isCompleted());
+            // 8️⃣ Record processed request
+            processedRequestRepository.save(
+                    ProcessedRequest.builder()
+                            .reqId(reqId)
+                            .policyId(event.getPolicyId())
+                            // .processedAt(Instant.now())
+                            .build());
 
-            // 9️⃣ Record processed request
-            ProcessedRequest pr = ProcessedRequest.builder()
-                    .reqId(reqId)
-                    .policyId(event.getPolicyId())
-                    .processedAt(Instant.now())
-                    .build();
-            processedRequestRepository.save(pr);
-            policyRedisService.setPolicy(saved.getPolicyId(), saved);
             return VerifyResult.success(saved);
 
-        } catch (InvalidSignatureException | TimeStampException ex) {
-            throw ex;
         } catch (Exception ex) {
             log.error("[WebhookService] Exception while processing reqId={}", reqId, ex);
             throw new RuntimeException(ex);
@@ -129,7 +111,8 @@ public class WebhookService {
 
     // Optional HMAC verification
     public boolean verifyHmac(String body, String signatureHeader) {
-        if (signatureHeader == null || signatureHeader.isBlank()) return false;
+        if (signatureHeader == null || signatureHeader.isBlank())
+            return false;
         String sigHex = signatureHeader.startsWith("sha256=") ? signatureHeader.substring(7) : signatureHeader;
         byte[] expected;
 
@@ -151,7 +134,8 @@ public class WebhookService {
 
     private static byte[] hexStringToByteArray(String s) {
         int len = s.length();
-        if (len % 2 != 0) throw new IllegalArgumentException("Invalid hex string");
+        if (len % 2 != 0)
+            throw new IllegalArgumentException("Invalid hex string");
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)

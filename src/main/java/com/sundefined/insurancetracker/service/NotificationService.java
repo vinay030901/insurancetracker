@@ -37,8 +37,8 @@ public class NotificationService {
                 .insuranceType(event.getInsuranceType())
                 .stage(nextStage)  // important: send nextStage in outbound payload
                 .description(event.getDescription())
-                .createdAt(event.getCreatedAt())
-                .sourceSystem(event.getSourceSystem())
+//                .createdAt(event.getCreatedAt())
+                .sourceSystemId(event.getSourceSystemId())
                 .externalEvent(event.getExternalEvent())
                 .completed(event.isCompleted())
                 .build();

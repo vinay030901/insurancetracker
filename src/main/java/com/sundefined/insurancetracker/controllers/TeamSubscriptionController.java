@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/subscriptions")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class TeamSubscriptionController {
 
     private final TeamSubscriptionService service;

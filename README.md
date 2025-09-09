@@ -6,7 +6,6 @@
 
 
 ---
-
 🚀 Problem Statement
 
 Insurance claims involve multiple stages (like document submission, verification, approval, payment) and different teams (health, car, etc.).

@@ -24,5 +24,5 @@ public class ProcessedRequest {
 
     private String policyId; // optional link to saved event
 
-    private Instant processedAt;
+    // private Instant processedAt;
 }
